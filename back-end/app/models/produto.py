@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Enum
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
 import enum
@@ -20,3 +21,4 @@ class ProdutoLogistica(Base):
     status = Column(Enum(StatusProduto))
     data_criacao = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     data_atualizacao = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    historico = relationship("HistoricoStatus", back_populates="produto")

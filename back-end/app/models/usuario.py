@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy.orm import relationship
 from app.core.database import Base
 
 class Usuario(Base):
@@ -9,3 +10,4 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     senha_hash = Column(String, nullable=False)
     ativo = Column(Boolean, default=True)
+    historico = relationship("HistoricoStatus", back_populates="produto")
