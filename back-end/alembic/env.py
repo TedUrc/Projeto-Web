@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.core.database import Base
-from app.models import produto, usuario
 
 config = context.config
 
