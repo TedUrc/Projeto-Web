@@ -10,4 +10,5 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     senha_hash = Column(String, nullable=False)
     ativo = Column(Boolean, default=True)
-    historico = relationship("HistoricoStatus", back_populates="produto")
+    
+    historico = relationship("HistoricoStatus", back_populates="usuario")
