@@ -1,0 +1,22 @@
+{
+    "name": "Projeto Logística API",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "api",
+    "workspaceFolder": "/app",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "njpwerner.autodocstring",
+                "ms-python.isort",
+                "ms-python.black-formatter"
+            ],
+            "settings": {
+                "python.analysis.extraPaths": ["/app"],
+                "python.defaultInterpreterPath": "/usr/local/bin/python"
+            }
+        }
+
+    }
+}
