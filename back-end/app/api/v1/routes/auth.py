@@ -1,9 +1,11 @@
+from alembic.environment import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.core.dependencies import get_db
+from app.core.dependencies import get_current_user, get_db
 from app.core.security import verificar_senha, criar_token
 from app.crud import usuario as crud_usuario
+from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, Token
 
 router = APIRouter()
@@ -25,3 +27,19 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         )
     token = criar_token(data={"sub": usuario.email})
     return {"access_token": token, "token_type": "bearer"}
+
+@router.get("/usuarios", response_model=List[UsuarioResponse])
+def listar_usuarios(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado — apenas administradores"
+        )
+    return db.query(Usuario).all()
+
+@router.get("/me", response_model=UsuarioResponse)
+def me(current_user=Depends(get_current_user)):
+    return current_user

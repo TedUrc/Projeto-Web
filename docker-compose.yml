@@ -18,6 +18,8 @@ services:
       - db                      # sobe o banco antes da API
     env_file:
       - ./back-end/.env         # carrega as variáveis de ambiente
+    volumes:
+      - ./back-end:/app                 # monta o diretório do back-end no container
 
 volumes:
   postgres_data:                # volume nomeado para persistir os dados
