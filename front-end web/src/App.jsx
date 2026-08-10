@@ -40,7 +40,7 @@ export default function App() {
       } />
 
       <Route path="/usuarios" element={
-        <RotaProtegida><Usuarios /></RotaProtegida>
+        <RotaProtegida apenasAdmin={true}><Usuarios /></RotaProtegida>
       } />
 
       <Route path="/mapa/:produtoId" element={

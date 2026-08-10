@@ -9,3 +9,4 @@ python-dotenv
 alembic
 pydantic[email]
 python-multipart
+slowapi

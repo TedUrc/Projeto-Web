@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Layout from './Layout'
 
-export default function RotaProtegida({ children }) {
+export default function RotaProtegida({ children, apenasAdmin = false }) {
   const { usuario, carregando } = useAuth()
 
   if (carregando) {
@@ -15,6 +15,10 @@ export default function RotaProtegida({ children }) {
 
   if (!usuario) {
     return <Navigate to="/login" replace />
+  }
+
+  if (apenasAdmin && usuario.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />
   }
 
   return <Layout>{children}</Layout>

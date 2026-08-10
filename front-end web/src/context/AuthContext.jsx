@@ -9,11 +9,19 @@ export function AuthProvider({ children }) {
   const [carregando, setCarregando] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      setUsuario({ token })
+    async function verificarToken() {
+      const token = localStorage.getItem('token')
+      if (token) {
+        try {
+          const res = await api.get('/auth/me')
+          setUsuario({ token, ...res.data })
+        } catch {
+          localStorage.removeItem('token')
+        }
+      }
+      setCarregando(false)
     }
-    setCarregando(false)
+    verificarToken()
   }, [])
 
   async function login(email, senha) {
@@ -27,7 +35,9 @@ export function AuthProvider({ children }) {
 
     const { access_token } = response.data
     localStorage.setItem('token', access_token)
-    setUsuario({ token: access_token })
+
+    const meRes = await api.get('/auth/me')
+    setUsuario({ token: access_token, ...meRes.data })
   }
 
   function logout() {
