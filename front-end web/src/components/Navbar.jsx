@@ -1,29 +1,19 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Package, Users, User } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useState, useEffect } from 'react'
-import api from '../services/api'
 
 export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [role, setRole] = useState(null)
+  const { usuario } = useAuth()
 
-  useEffect(() => {
-    async function carregarPerfil() {
-      try {
-        const res = await api.get('/auth/me')
-        setRole(res.data.role)
-      } catch {}
-    }
-    carregarPerfil()
-  }, [])
+  const isAdmin = usuario?.role === 'admin'
 
   const itens = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Início' },
-    { path: '/produtos', icon: Package, label: 'Produtos' },
-    ...(role === 'admin' ? [{ path: '/usuarios', icon: Users, label: 'Usuários' }] : []),
-    { path: '/perfil', icon: User, label: 'Perfil' },
+    { path: '/produtos',  icon: Package,         label: 'Produtos' },
+    ...(isAdmin ? [{ path: '/usuarios', icon: Users, label: 'Usuários' }] : []),
+    { path: '/perfil',    icon: User,            label: 'Perfil' },
   ]
 
   const ativo = (path) => location.pathname === path
@@ -48,7 +38,10 @@ export default function Navbar() {
 
       {/* Desktop — barra lateral */}
       <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-gray-900 border-r border-gray-800 flex-col p-4 z-50">
-        <div className="flex items-center gap-2 mb-8 px-2">
+        <div
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center gap-2 mb-8 px-2 cursor-pointer"
+        >
           <div className="bg-blue-600 p-1.5 rounded-lg">
             <Package size={16} className="text-white" />
           </div>
