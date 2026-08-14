@@ -23,7 +23,7 @@ def create_produto(db: Session, produto: schemas.ProdutoCreate):
         codigo_rastreio=produto.codigo_rastreio,
         destinatario=produto.destinatario,
         endereco=produto.endereco,
-        status=StatusProduto.PENDENCIA,
+        status="pendência",
         motorista_id=produto.motorista_id
     )
     db.add(db_produto)
@@ -35,8 +35,6 @@ def update_produto(db: Session, produto_id: int, produto: schemas.ProdutoUpdate)
     db_produto = get_produto(db, produto_id)
     if db_produto:
         update_data = produto.model_dump(exclude_unset=True)
-        if 'status' in update_data:
-            update_data['status'] = StatusProduto(update_data['status'])
         for key, value in update_data.items():
             setattr(db_produto, key, value)
         db.commit()

@@ -24,7 +24,7 @@ export default function Dashboard() {
     { key: 'pendencia',    label: 'Pendência',  valor: stats.pendencia,    icon: Clock,       cor: 'yellow' },
     { key: 'saida',        label: 'Em saída',   valor: stats.saida,        icon: Truck,       cor: 'purple' },
     { key: 'entrega',      label: 'Entregues',  valor: stats.entrega,      icon: CheckCircle, cor: 'green'  },
-    { key: 'cancelamento', label: 'Cancelados', valor: stats.cancelamento, icon: XCircil,     cor: 'red'    },
+    { key: 'cancelamento', label: 'Cancelados', valor: stats.cancelamento, icon: XCircle,     cor: 'red'    },
   ]
 
   return (
