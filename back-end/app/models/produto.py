@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 import enum
@@ -17,7 +17,7 @@ class ProdutoLogistica(Base):
     codigo_rastreio = Column(String, unique=True, index=True)
     destinatario = Column(String)
     endereco = Column(String)
-    status = Column(Enum(StatusProduto))
+    status = Column(String)
     motorista_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     data_criacao = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     data_atualizacao = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

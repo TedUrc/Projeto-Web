@@ -6,8 +6,11 @@ from app.core.dependencies import get_db, get_current_user
 from app.schemas.produto import ProdutoCreate, ProdutoUpdate, ProdutoResponse
 from app.crud import produto as crud
 from app.models.produto import ProdutoLogistica
+import traceback
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 @router.get("/", response_model=List[ProdutoResponse])
 def listar_produtos(
@@ -45,8 +48,9 @@ def criar_produto(
         raise HTTPException(status_code=400, detail="Código de rastreio já existe")
     try:
         return crud.create_produto(db=db, produto=produto)
-    except SQLAlchemyError:
-        raise HTTPException(status_code=500, detail="Erro interno ao criar produto")
+    except Exception as e:
+        logger.error(f"Erro ao criar produto: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
 
 @router.put("/{produto_id}", response_model=ProdutoResponse)
 def atualizar_produto(

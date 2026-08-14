@@ -46,8 +46,8 @@ export default function Perfil() {
           </div>
 
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 flex flex-col gap-3">
-            <InfoItem icon={Mail}   label="Email"            valor={usuario.email} />
-            <InfoItem icon={User}   label="Nome"             valor={usuario.nome} />
+            <InfoItem icon={Mail} label="Email" valor={usuario.email} />
+            <InfoItem icon={User} label="Nome" valor={usuario.nome} />
             <InfoItem
               icon={Shield}
               label="Status da conta"

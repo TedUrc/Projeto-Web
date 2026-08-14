@@ -15,9 +15,11 @@ export default function Produtos() {
   const { motoristas } = useMotoristas(isAdmin)
   const [busca, setBusca] = useState('')
   const [modalAberto, setModalAberto] = useState(false)
-  const [form, setForm] = useState({ codigo_rastreio: '', destinatario: '', endereco: '', motorista_id: '' })
   const [erroCriar, setErroCriar] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [form, setForm] = useState({ codigo_rastreio: '', destinatario: '', endereco: '', motorista_id: '' })
+  const [labelForm, setLabelForm] = useState({codigo_rastreio: 'Código Rastreio', destinatario: 'Destinatário(a)', endereco: 'Endereço'})
+  const [placeholder, setPlaceholder] = useState({codigo_rastreio: 'Digite o código de rastreio', destinatario: 'Digite o destinatário(a)', endereco: 'Rua, número, bairro, cidade - UF'})
 
   async function handleCriar(e) {
     e.preventDefault()
@@ -116,9 +118,10 @@ export default function Produtos() {
             <form onSubmit={handleCriar} className="flex flex-col gap-4">
               {['codigo_rastreio', 'destinatario', 'endereco'].map((campo) => (
                 <div key={campo} className="flex flex-col gap-1">
-                  <label className="text-sm text-gray-400 capitalize">{campo.replace('_', ' ')}</label>
+                  <label className="text-sm text-gray-400">{labelForm[campo]}</label>
                   <input
                     type="text"
+                    placeholder={placeholder[campo]}
                     value={form[campo]}
                     onChange={(e) => setForm({ ...form, [campo]: e.target.value })}
                     required
