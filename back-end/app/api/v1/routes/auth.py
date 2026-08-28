@@ -24,12 +24,12 @@ def registrar(request: Request, usuario: UsuarioCreate, db: Session = Depends(ge
 @limiter.limit("10/minute")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     usuario = crud_usuario.get_usuario_por_email(db, email=form_data.username)
-    if not usuario or not verificar_senha(form_data.password, usuario.senha_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou senha incorretos",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Email ou senha incorretos", headers={"WWW-Authenticate": "Bearer"})
+    if not usuario.ativo:
+        raise HTTPException(status_code=403, detail="Conta desativada. Entre em contato com o administrador.")
+    if not verificar_senha(form_data.password, usuario.senha_hash):
+        raise HTTPException(status_code=401, detail="Email ou senha incorretos", headers={"WWW-Authenticate": "Bearer"})
     token = criar_token(data={"sub": usuario.email})
     return {"access_token": token, "token_type": "bearer"}
 
@@ -42,3 +42,23 @@ def listar_usuarios(db: Session = Depends(get_db), current_user=Depends(get_curr
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Acesso negado")
     return db.query(Usuario).all()
+
+@router.delete("/usuarios/{usuario_id}", status_code=204)
+def deletar_usuario(usuario_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    if usuario_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Você não pode deletar sua própria conta")
+    if not crud_usuario.delete_usuario(db, usuario_id=usuario_id):
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+@router.patch("/usuarios/{usuario_id}/ativar", response_model=UsuarioResponse)
+def toggle_ativo(usuario_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    if usuario_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Você não pode desativar sua própria conta")
+    usuario = crud_usuario.toggle_ativo(db, usuario_id=usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return usuario
