@@ -1,25 +1,23 @@
 services:
   db:
-    image: postgres:15          # baixa o PostgreSQL pronto, sem instalar nada
+    image: postgres:15
     environment:
       POSTGRES_USER: logistica_user
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: logistica_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data   # dados persistem ao desligar
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   api:
-    build: ./back-end           # usa o Dockerfile do back-end
+    build: ./back-end
     ports:
       - "8000:8000"
     depends_on:
-      - db                      # sobe o banco antes da API
+      - db
     env_file:
-      - ./back-end/.env         # carrega as variáveis de ambiente
-    volumes:
-      - ./back-end:/app                 # monta o diretório do back-end no container
+      - ./back-end/.env
 
 volumes:
-  postgres_data:                # volume nomeado para persistir os dados
+  postgres_data:
