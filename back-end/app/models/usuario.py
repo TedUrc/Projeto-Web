@@ -9,9 +9,10 @@ class Usuario(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     nome = Column(String, nullable=False)
     senha_hash = Column(String, nullable=False)
-    ativo = Column(Boolean, default=True)
+    ativo = Column(Boolean, default=False)
     role = Column(String, default="motorista", nullable=False)
     
     historico = relationship("HistoricoStatus", back_populates="usuario")
     localizacoes = relationship("Localizacao", back_populates="usuario")
     produtos = relationship("ProdutoLogistica", back_populates="motorista", foreign_keys="ProdutoLogistica.motorista_id")
+    tokens_confirmacao = relationship("TokenConfirmacao", back_populates="usuario")

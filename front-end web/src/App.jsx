@@ -10,6 +10,7 @@ import Usuarios from './pages/Usuarios'
 import Rastreio from './pages/Rastreio'
 import Mapa from './pages/Mapa'
 import RotaProtegida from './components/RotaProtegida'
+import ConfirmarEmail from './pages/ConfirmarEmail'
 
 export default function App() {
   return (
@@ -46,6 +47,8 @@ export default function App() {
       <Route path="/mapa/:produtoId" element={
         <RotaProtegida><Mapa /></RotaProtegida>
       } />
+      
+      <Route path="/confirmar/:token" element={<ConfirmarEmail />} />
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -9,16 +9,52 @@ from app.core.security import verificar_senha, criar_token
 from app.crud import usuario as crud_usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, Token
 from app.models.usuario import Usuario
+from app.models.token_confirmacao import TokenConfirmacao
+from app.services.email import gerar_token_confirmacao, enviar_email_confirmacao
+import os
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
+
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
 @router.post("/register", response_model=UsuarioResponse, status_code=201)
 @limiter.limit("5/minute")
 def registrar(request: Request, usuario: UsuarioCreate, db: Session = Depends(get_db)):
     if crud_usuario.get_usuario_por_email(db, email=usuario.email):
         raise HTTPException(status_code=400, detail="Email já cadastrado")
-    return crud_usuario.create_usuario(db=db, usuario=usuario)
+
+    db_usuario = crud_usuario.create_usuario(db=db, usuario=usuario)
+
+    # Gera token e envia e-mail de confirmação
+    token = gerar_token_confirmacao(db, usuario_id=db_usuario.id)
+    enviar_email_confirmacao(
+        email=db_usuario.email,
+        nome=db_usuario.nome,
+        token=token,
+        base_url=BASE_URL
+    )
+
+    return db_usuario
+
+@router.get("/confirmar/{token}")
+def confirmar_email(token: str, db: Session = Depends(get_db)):
+    db_token = db.query(TokenConfirmacao).filter(
+        TokenConfirmacao.token == token
+    ).first()
+
+    if not db_token:
+        raise HTTPException(status_code=404, detail="Token inválido ou expirado")
+
+    usuario = crud_usuario.get_usuario_por_id(db, usuario_id=db_token.usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    usuario.ativo = True
+    db.delete(db_token)
+    db.commit()
+
+    return {"message": "Conta confirmada com sucesso! Você já pode fazer login."}
 
 @router.post("/login", response_model=Token)
 @limiter.limit("10/minute")
@@ -27,7 +63,7 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
     if not usuario:
         raise HTTPException(status_code=401, detail="Email ou senha incorretos", headers={"WWW-Authenticate": "Bearer"})
     if not usuario.ativo:
-        raise HTTPException(status_code=403, detail="Conta desativada. Entre em contato com o administrador.")
+        raise HTTPException(status_code=403, detail="Conta não confirmada. Verifique seu e-mail.")
     if not verificar_senha(form_data.password, usuario.senha_hash):
         raise HTTPException(status_code=401, detail="Email ou senha incorretos", headers={"WWW-Authenticate": "Bearer"})
     token = criar_token(data={"sub": usuario.email})

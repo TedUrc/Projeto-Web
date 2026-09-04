@@ -10,3 +10,5 @@ alembic
 pydantic[email]
 python-multipart
 slowapi
+email-validator[dnspython]
+apscheduler
