@@ -1,6 +1,21 @@
 import { useState } from 'react'
 import ErroBox from '../ui/ErroBox'
 
+const REGEX_CODIGO = /^[A-Z]{2}[0-9]{9}[A-Z]{2}$/
+
+function validarForm(form) {
+  const codigo = form.codigo_rastreio.trim().toUpperCase()
+  if (!REGEX_CODIGO.test(codigo)) {
+    return 'Código inválido. Use o formato dos Correios: AA000000000AA'
+  }
+  if (!form.destinatario.trim()) return 'Destinatário é obrigatório'
+  if (!/^[A-Za-zÀ-ÿ\s]+$/.test(form.destinatario)) {
+    return 'Destinatário deve conter apenas letras e espaços'
+  }
+  if (form.endereco.trim().length < 10) return 'Endereço muito curto'
+  return null
+}
+
 export default function ModalCriarProduto({ motoristas, onCriar, onFechar }) {
   const [form, setForm] = useState({
     codigo_rastreio: '', destinatario: '', endereco: '', motorista_id: ''
@@ -11,21 +26,48 @@ export default function ModalCriarProduto({ motoristas, onCriar, onFechar }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setErro('')
+
+    const erroValidacao = validarForm(form)
+    if (erroValidacao) return setErro(erroValidacao)
+
     setSalvando(true)
     try {
-      await onCriar(form)
+      await onCriar({
+        ...form,
+        codigo_rastreio: form.codigo_rastreio.trim().toUpperCase()
+      })
       onFechar()
     } catch (err) {
-      setErro(err.response?.data?.detail || 'Erro ao criar produto')
+      const detail = err.response?.data?.detail
+      if (Array.isArray(detail)) {
+        setErro(detail[0]?.msg || 'Erro ao criar produto')
+      } else {
+        setErro(detail || 'Erro ao criar produto')
+      }
     } finally {
       setSalvando(false)
     }
   }
 
   const campos = [
-    { key: 'codigo_rastreio', label: 'Código de Rastreio', placeholder: 'BR123456789BR' },
-    { key: 'destinatario',    label: 'Destinatário',       placeholder: 'Nome completo' },
-    { key: 'endereco',        label: 'Endereço',           placeholder: 'Rua, número, cidade' },
+    {
+      key: 'codigo_rastreio',
+      label: 'Código de Rastreio',
+      placeholder: 'BR123456789BR',
+      hint: 'Formato: AA000000000AA'
+    },
+    {
+      key: 'destinatario',
+      label: 'Destinatário',
+      placeholder: 'Nome completo',
+      hint: null
+    },
+    {
+      key: 'endereco',
+      label: 'Endereço',
+      placeholder: 'Rua, número, cidade',
+      hint: null
+    },
   ]
 
   return (
@@ -34,7 +76,7 @@ export default function ModalCriarProduto({ motoristas, onCriar, onFechar }) {
         <h2 className="text-white font-bold mb-4">Novo Produto</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {campos.map(({ key, label, placeholder }) => (
+          {campos.map(({ key, label, placeholder, hint }) => (
             <div key={key} className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">{label}</label>
               <input
@@ -45,6 +87,7 @@ export default function ModalCriarProduto({ motoristas, onCriar, onFechar }) {
                 required
                 className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
               />
+              {hint && <p className="text-gray-500 text-xs">{hint}</p>}
             </div>
           ))}
 
