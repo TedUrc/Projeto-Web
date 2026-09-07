@@ -1,6 +1,8 @@
-import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Navigation, WifiOff, CheckCircle, Package } from 'lucide-react'
 import { useRastreio } from '../hooks/rastreio/useRastreio'
+import api from '../services/api'
 
 function StatusCard({ status, ultimoEnvio }) {
   const configs = {
@@ -57,7 +59,7 @@ function StatusCard({ status, ultimoEnvio }) {
   const config = configs[status] || configs.idle
 
   return (
-    <div className={`rounded-2xl p-6 border text-center ${config.classe}`}>
+    <div className={`rounded-2xl p-6 border text-center transition-colors ${config.classe}`}>
       {config.conteudo}
     </div>
   )
@@ -65,7 +67,32 @@ function StatusCard({ status, ultimoEnvio }) {
 
 export default function Rastreio() {
   const { produtoId } = useParams()
+  const navigate = useNavigate()
   const { status, ultimoEnvio, produto, iniciarRastreio, pararRastreio } = useRastreio(produtoId)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    async function validarAcesso() {
+      try {
+        const meRes = await api.get('/auth/me')
+        if (meRes.data.role === 'admin') {
+          navigate('/produtos')
+        }
+      } catch (err) {
+        console.error('Erro ao verificar permissão do usuário:', err)
+        if (err.response?.status === 401) {
+          navigate('/login')
+        }
+      }
+    }
+
+    validarAcesso()
+  }, [navigate])
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
@@ -88,7 +115,8 @@ export default function Rastreio() {
         {status !== 'tracking' ? (
           <button
             onClick={iniciarRastreio}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-4 rounded-2xl text-sm flex items-center justify-center gap-2 transition-colors"
+            type="button"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-4 rounded-2xl text-sm flex items-center justify-center gap-2 transition-colors active:scale-[0.98]"
           >
             <Navigation size={18} />
             Iniciar rastreio
@@ -96,7 +124,8 @@ export default function Rastreio() {
         ) : (
           <button
             onClick={pararRastreio}
-            className="bg-red-900/30 hover:bg-red-900/50 border border-red-800 text-red-400 font-medium py-4 rounded-2xl text-sm flex items-center justify-center gap-2 transition-colors"
+            type="button"
+            className="bg-red-900/30 hover:bg-red-900/50 border border-red-800 text-red-400 font-medium py-4 rounded-2xl text-sm flex items-center justify-center gap-2 transition-colors active:scale-[0.98]"
           >
             <WifiOff size={18} />
             Parar rastreio

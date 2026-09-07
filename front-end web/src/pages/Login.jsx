@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Package, LogIn, Eye, EyeOff } from 'lucide-react'
-import ErroBox from '../components/ui/ErroBox'
 import InputField from '../components/ui/InputField'
 
 export default function Login() {
@@ -15,14 +14,21 @@ export default function Login() {
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
-    e.preventDefault()
     setErro('')
     setCarregando(true)
     try {
-      await login(email, senha)
+      // Normalização do e-mail antes do envio
+      await login(email.trim().toLowerCase(), senha)
       navigate('/dashboard')
-    } catch {
-      setErro('Email ou senha incorretos')
+    } catch (err) {
+      const status = err.response?.status
+      const detail = err.response?.data?.detail
+
+      if (status === 403 && detail?.includes('não confirmada')) {
+        setErro('Conta não confirmada. Verifique seu e-mail e clique no link de ativação.')
+      } else {
+        setErro('Email ou senha incorretos')
+      }
     } finally {
       setCarregando(false)
     }
@@ -47,6 +53,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="seu@email.com"
+              autoComplete="email"
               required
             />
 
@@ -58,6 +65,7 @@ export default function Login() {
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   required
                   className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 pr-11 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
                 />
@@ -71,22 +79,47 @@ export default function Login() {
               </div>
             </div>
 
-            <ErroBox mensagem={erro} />
+            {erro && (
+              <div className={`border rounded-lg px-4 py-3 text-sm ${
+                erro.includes('não confirmada')
+                  ? 'bg-yellow-900/30 border-yellow-800 text-yellow-400'
+                  : 'bg-red-900/30 border-red-800 text-red-400'
+              }`}>
+                {erro}
+                {erro.includes('não confirmada') && (
+                  <p className="text-xs mt-1 opacity-80">
+                    Não recebeu o e-mail? Verifique sua caixa de spam.
+                  </p>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={carregando}
               className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-medium py-3 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors mt-2"
+              onClick={(e) => {
+                e.preventDefault()
+                handleSubmit(e)
+              }}
             >
               <LogIn size={16} />
               {carregando ? 'Entrando...' : 'Entrar'}
             </button>
 
-            <button type="button" onClick={() => navigate('/registro')} className="text-center text-gray-400 hover:text-white text-sm transition-colors">
+            <button 
+              type="button" 
+              onClick={() => navigate('/registro')} 
+              className="text-center text-gray-400 hover:text-white text-sm transition-colors"
+            >
               Não tem conta? <span className="text-blue-400">Criar conta</span>
             </button>
 
-            <button type="button" onClick={() => navigate('/recuperar-senha')} className="text-center text-gray-500 hover:text-gray-300 text-xs transition-colors">
+            <button 
+              type="button" 
+              onClick={() => navigate('/recuperar-senha')} 
+              className="text-center text-gray-500 hover:text-gray-300 text-xs transition-colors"
+            >
               Esqueci minha senha
             </button>
           </form>

@@ -8,8 +8,8 @@ export function useMotoristas(isAdmin) {
     if (!isAdmin) return
     async function carregar() {
       try {
-        const res = await api.get('/auth/usuarios')
-        setMotoristas(res.data.filter(u => u.role === 'motorista'))
+        const res = await api.get('/auth/motoristas/disponiveis')
+        setMotoristas(res.data)
       } catch {}
     }
     carregar()

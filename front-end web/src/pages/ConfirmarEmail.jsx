@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Package, CheckCircle, XCircle } from 'lucide-react'
 import api from '../services/api'
@@ -6,19 +6,20 @@ import api from '../services/api'
 export default function ConfirmarEmail() {
   const { token } = useParams()
   const navigate = useNavigate()
-  const [status, setStatus] = useState('carregando')
+  const [status, setStatus] = useState('aguardando')
+  const [carregando, setCarregando] = useState(false)
 
-  useEffect(() => {
-    async function confirmar() {
-      try {
-        await api.get(`/auth/confirmar/${token}`)
-        setStatus('sucesso')
-      } catch {
-        setStatus('erro')
-      }
+  async function confirmar() {
+    setCarregando(true)
+    try {
+      await api.get(`/auth/confirmar/${token}`)
+      setStatus('sucesso')
+    } catch {
+      setStatus('erro')
+    } finally {
+      setCarregando(false)
     }
-    confirmar()
-  }, [token])
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
@@ -27,9 +28,19 @@ export default function ConfirmarEmail() {
           <Package size={32} className="text-white" />
         </div>
 
-        {status === 'carregando' && (
+        {status === 'aguardando' && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-            <p className="text-gray-400 text-sm">Confirmando sua conta...</p>
+            <h2 className="text-white font-bold text-lg mb-2">Confirmar conta</h2>
+            <p className="text-gray-400 text-sm mb-6">
+              Clique no botão abaixo para ativar sua conta.
+            </p>
+            <button
+              onClick={confirmar}
+              disabled={carregando}
+              className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors"
+            >
+              {carregando ? 'Confirmando...' : 'Ativar minha conta'}
+            </button>
           </div>
         )}
 

@@ -12,16 +12,23 @@ class StatusProduto(enum.Enum):
 
 class ProdutoLogistica(Base):
     __tablename__ = "produtos"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     codigo_rastreio = Column(String, unique=True, index=True)
     destinatario = Column(String)
-    endereco = Column(String)
+    cep = Column(String)
+    logradouro = Column(String)
+    numero = Column(String)
+    complemento_tipo = Column(String)
+    complemento = Column(String)
+    bairro = Column(String)
+    cidade = Column(String)
+    estado = Column(String)
     status = Column(String)
     motorista_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     data_criacao = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     data_atualizacao = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-    
+
     historico = relationship("HistoricoStatus", back_populates="produto")
     localizacoes = relationship("Localizacao", back_populates="produto")
     motorista = relationship("Usuario", back_populates="produtos", foreign_keys=[motorista_id])

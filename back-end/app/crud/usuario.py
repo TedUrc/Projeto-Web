@@ -21,6 +21,7 @@ def create_usuario(db: Session, usuario: UsuarioCreate):
     db.refresh(db_usuario)
     return db_usuario
 
+
 def delete_usuario(db: Session, usuario_id: int):
     db_usuario = get_usuario_por_id(db, usuario_id)
     if db_usuario:
@@ -28,6 +29,19 @@ def delete_usuario(db: Session, usuario_id: int):
         db.commit()
         return True
     return False
+
+def get_motoristas_disponiveis(db: Session):
+    from app.models.produto import ProdutoLogistica
+    motoristas_ocupados = db.query(ProdutoLogistica.motorista_id).filter(
+        ProdutoLogistica.status.in_(['pendência', 'saída']),
+        ProdutoLogistica.motorista_id != None
+    ).subquery()
+
+    return db.query(Usuario).filter(
+        Usuario.role == 'motorista',
+        Usuario.ativo == True,
+        ~Usuario.id.in_(motoristas_ocupados)
+    ).all()
 
 def toggle_ativo(db: Session, usuario_id: int):
     db_usuario = get_usuario_por_id(db, usuario_id)

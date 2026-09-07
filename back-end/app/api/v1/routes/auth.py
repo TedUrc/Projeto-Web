@@ -88,6 +88,12 @@ def deletar_usuario(usuario_id: int, db: Session = Depends(get_db), current_user
     if not crud_usuario.delete_usuario(db, usuario_id=usuario_id):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
+@router.get("/motoristas/disponiveis", response_model=List[UsuarioResponse])
+def motoristas_disponiveis(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    return crud_usuario.get_motoristas_disponiveis(db)
+
 @router.patch("/usuarios/{usuario_id}/ativar", response_model=UsuarioResponse)
 def toggle_ativo(usuario_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     if current_user.role != "admin":
