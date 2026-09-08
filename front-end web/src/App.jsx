@@ -8,6 +8,7 @@ import Historico from './pages/Historico'
 import Perfil from './pages/Perfil'
 import Usuarios from './pages/Usuarios'
 import Rastreio from './pages/Rastreio'
+import RedefinirSenha from './pages/RedefinirSenha'
 import Mapa from './pages/Mapa'
 import RotaProtegida from './components/RotaProtegida'
 import ConfirmarEmail from './pages/ConfirmarEmail'
@@ -18,6 +19,10 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
       <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+      <Route path="/recuperar/:token" element={<RedefinirSenha />} />
+      <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+      <Route path="/confirmar/:token" element={<ConfirmarEmail />} />
+
       <Route path="/rastreio/:produtoId" element={<Rastreio />} />
 
       <Route path="/dashboard" element={
@@ -33,7 +38,7 @@ export default function App() {
       } />
 
       <Route path="/historico" element={
-        <RotaProtegida><Produtos /></RotaProtegida>
+        <RotaProtegida><Historico /></RotaProtegida>
       } />
 
       <Route path="/perfil" element={
@@ -48,8 +53,6 @@ export default function App() {
         <RotaProtegida><Mapa /></RotaProtegida>
       } />
       
-      <Route path="/confirmar/:token" element={<ConfirmarEmail />} />
-
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

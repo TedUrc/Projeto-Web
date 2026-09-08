@@ -16,3 +16,4 @@ class Usuario(Base):
     localizacoes = relationship("Localizacao", back_populates="usuario")
     produtos = relationship("ProdutoLogistica", back_populates="motorista", foreign_keys="ProdutoLogistica.motorista_id")
     tokens_confirmacao = relationship("TokenConfirmacao", back_populates="usuario")
+    tokens_recuperacao = relationship("TokenRecuperacao", back_populates="usuario", cascade="all, delete")
