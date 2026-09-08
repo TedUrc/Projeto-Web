@@ -1,6 +1,8 @@
 {
   "$schema": "https://railpack.com/config/file.schema.json",
-  "provider": "node",
+  "packages": {
+    "node": "20"
+  },
   "build": {
     "steps": [
       {
